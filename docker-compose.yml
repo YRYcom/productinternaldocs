@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: prestashop_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: prestashop
+      MYSQL_USER: prestashop
+      MYSQL_PASSWORD: prestashop
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - prestashop_network
+
+  prestashop:
+    image: prestashop/prestashop:1.7.8.7
+    container_name: prestashop
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8000:80"
+    environment:
+      DB_SERVER: mysql
+      DB_NAME: prestashop
+      DB_USER: prestashop
+      DB_PASSWD: prestashop
+      PS_INSTALL_AUTO: 1
+      PS_DOMAIN: localhost:8000
+      PS_FOLDER_ADMIN: admin
+      PS_FOLDER_INSTALL: install
+      PS_LANGUAGE: fr
+      PS_COUNTRY: FR
+      PS_ENABLE_SSL: 0
+      ADMIN_MAIL: admin@prestashop.local
+      ADMIN_PASSWD: Prestashop123
+    volumes:
+      - prestashop_data:/var/www/html
+      - ./modules/productinternaldocs:/var/www/html/modules/productinternaldocs
+      - ./private_documents:/var/private_documents
+    networks:
+      - prestashop_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: prestashop_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: prestashop
+      PMA_PASSWORD: prestashop
+    networks:
+      - prestashop_network
+
+volumes:
+  mysql_data:
+  prestashop_data:
+
+networks:
+  prestashop_network:
+    driver: bridge
