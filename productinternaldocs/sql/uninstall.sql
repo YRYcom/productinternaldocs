@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS `PREFIX_product_internal_document`;

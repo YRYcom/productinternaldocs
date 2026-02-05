@@ -1,0 +1,36 @@
+Instruction module Documents Internes Produits
+==============================================
+
+Description :
+Ce module permet de gérer des documents internes et confidentiels associés à vos produits, directement depuis l'interface d'administration (Back-Office).
+
+Fonctionnalités principales :
+- Upload de fichiers sécurisés
+- Téléchargement des documents
+- Suppression de documents
+- Historique (Audit trail) des actions
+
+Comment l'utiliser :
+
+1. Accéder à la gestion des documents :
+   - Connectez-vous à votre Back-Office PrestaShop.
+   - Allez dans le menu "Catalogue" > "Produits".
+   - Ouvrez la fiche du produit que vous souhaitez modifier.
+   - Faites défiler la page jusqu'en bas, dans l'onglet/section "Options".
+   - Vous trouverez le bloc "Documents internes produits".
+
+2. Ajouter un document :
+   - Utilisez le champ d'upload (parcourir ou glisser-déposer) dans ce bloc.
+   - Le fichier sera automatiquement envoyé et sécurisé sur le serveur.
+
+3. Consulter / Télécharger :
+   - La liste des documents attachés au produit s'affiche dans ce même bloc.
+   - Cliquez simplement sur le nom d'un fichier pour le télécharger sur votre poste.
+
+4. Supprimer un document :
+   - Cliquez sur le bouton de suppression (icône corbeille) à côté du document concerné pour le retirer.
+
+Sécurité :
+- Les fichiers ne sont PAS accessibles via une URL publique.
+- Seuls les employés connectés au Back-Office peuvent voir et télécharger ces fichiers.
+- Chaque action (téléchargement, ajout, suppression) est journalisée.
