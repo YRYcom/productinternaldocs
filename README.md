@@ -44,21 +44,7 @@ PDF • Word • Excel • Images • Texte (max 10 MB)
 
 ## 🚀 Installation en production
 
-```bash
-# 1. Cloner le repository
-git clone 
-
-# 2. Copier le module dans votre PrestaShop
-cp -r productinternaldocs /var/www/html/modules/
-
-# 3. Créer le répertoire de stockage sécurisé
-mkdir -p /var/private_documents/products
-chmod 755 /var/private_documents
-chown www-data:www-data /var/private_documents
-
-# 4. Installer via le back-office PrestaShop
-# Modules > Module Manager > Rechercher "Documents internes" > Installer
-```
+Télécharger la release directement sur le github et l'ajouter à son projet Prestashop.
 
 ### Test en local avec Docker (optionnel)
 
