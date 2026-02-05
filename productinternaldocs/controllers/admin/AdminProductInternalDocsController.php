@@ -138,6 +138,22 @@ class AdminProductInternalDocsController extends ModuleAdminController
         );
     }
 
+    public function processGetDocuments()
+    {
+        $id_product = (int)Tools::getValue('id_product');
+
+        if (!$id_product) {
+            $this->ajaxDie(json_encode(['success' => false, 'error' => 'Produit invalide']));
+        }
+
+        $documents = ProductInternalDocument::getByProductId($id_product, true);
+
+        $this->ajaxDie(json_encode([
+            'success' => true,
+            'documents' => $documents
+        ]));
+    }
+
     public function postProcess()
     {
         $action = Tools::getValue('action');
@@ -151,6 +167,9 @@ class AdminProductInternalDocsController extends ModuleAdminController
                 break;
             case 'delete':
                 $this->processDelete();
+                break;
+            case 'getDocuments':
+                $this->processGetDocuments();
                 break;
         }
 

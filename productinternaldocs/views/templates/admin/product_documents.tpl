@@ -136,7 +136,7 @@ $(document).ready(function() {
     // Charger les documents
     function loadDocuments() {
         $.ajax({
-            url: moduleDir + 'ajax.php',
+            url: adminController,
             type: 'GET',
             data: {
                 action: 'getDocuments',
@@ -209,7 +209,7 @@ $(document).ready(function() {
         formData.append('token', csrfToken);
 
         $.ajax({
-            url: moduleDir + 'ajax.php',
+            url: adminController,
             type: 'POST',
             data: formData,
             processData: false,
@@ -225,8 +225,18 @@ $(document).ready(function() {
                     alert('Erreur: ' + response.error);
                 }
             },
-            error: function() {
-                alert('Erreur lors du téléversement');
+            error: function(xhr, status, error) {
+                console.log('Upload error:', xhr.responseText, status, error);
+                var errorMsg = 'Erreur lors du téléversement';
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.error) {
+                        errorMsg = response.error;
+                    }
+                } catch(e) {
+                    errorMsg += ' (HTTP ' + xhr.status + ': ' + error + ')';
+                }
+                alert(errorMsg);
             }
         });
     });
@@ -239,12 +249,11 @@ $(document).ready(function() {
         var idDocument = $(this).data('id');
 
         $.ajax({
-            url: moduleDir + 'ajax.php',
+            url: adminController,
             type: 'POST',
             data: {
                 action: 'delete',
-                id_document: idDocument,
-                token: csrfToken
+                id_document: idDocument
             },
             dataType: 'json',
             success: function(response) {
