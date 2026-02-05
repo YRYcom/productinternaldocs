@@ -1,23 +1,34 @@
 <?php
+// Initialisation du contexte PrestaShop
 require_once dirname(__FILE__) . '/../../config/config.inc.php';
 require_once dirname(__FILE__) . '/classes/ProductInternalDocument.php';
 
 $context = Context::getContext();
 
-// Vérification d'authentification stricte
-if (!$context->employee || !$context->employee->id) {
-    if (isset($context->cookie->id_employee) && $context->cookie->id_employee) {
-        $context->employee = new Employee((int)$context->cookie->id_employee);
+// Chercher le cookie admin parmi tous les cookies PrestaShop
+$employee = null;
+foreach ($_COOKIE as $cookie_name => $cookie_value) {
+    if (strpos($cookie_name, 'PrestaShop-') === 0) {
+        // Créer un objet Cookie pour lire les données chiffrées
+        $test_cookie = new Cookie($cookie_name, '');
+        if (!empty($test_cookie->id_employee)) {
+            $employee = new Employee((int)$test_cookie->id_employee);
+            if (Validate::isLoadedObject($employee)) {
+                $context->employee = $employee;
+                break;
+            }
+        }
     }
+}
 
-    // Si toujours pas d'employé authentifié, refuser l'accès
-    if (!$context->employee || !$context->employee->id) {
-        header('HTTP/1.1 403 Forbidden');
-        die(json_encode([
-            'success' => false,
-            'error' => 'Accès non autorisé. Veuillez vous connecter au back-office.'
-        ]));
-    }
+// Vérification d'authentification stricte
+if (!$context->employee || !Validate::isLoadedObject($context->employee)) {
+    header('HTTP/1.1 403 Forbidden');
+    header('Content-Type: application/json');
+    die(json_encode([
+        'success' => false,
+        'error' => 'Accès non autorisé. Veuillez vous connecter au back-office.'
+    ]));
 }
 
 // Vérification du token CSRF pour les actions POST
@@ -59,8 +70,23 @@ try {
                 throw new Exception('Produit invalide');
             }
 
-            if (!isset($_FILES['document']) || $_FILES['document']['error'] !== UPLOAD_ERR_OK) {
-                throw new Exception('Erreur lors de l\'upload');
+            if (!isset($_FILES['document'])) {
+                throw new Exception('Aucun fichier reçu');
+            }
+
+            if ($_FILES['document']['error'] !== UPLOAD_ERR_OK) {
+                $upload_errors = [
+                    UPLOAD_ERR_INI_SIZE => 'Le fichier dépasse la taille maximale autorisée par PHP (upload_max_filesize)',
+                    UPLOAD_ERR_FORM_SIZE => 'Le fichier dépasse la taille maximale autorisée par le formulaire',
+                    UPLOAD_ERR_PARTIAL => 'Le fichier n\'a été que partiellement téléversé',
+                    UPLOAD_ERR_NO_FILE => 'Aucun fichier n\'a été téléversé',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Dossier temporaire manquant',
+                    UPLOAD_ERR_CANT_WRITE => 'Échec de l\'écriture du fichier sur le disque',
+                    UPLOAD_ERR_EXTENSION => 'Une extension PHP a arrêté le téléversement',
+                ];
+                $error_code = $_FILES['document']['error'];
+                $error_msg = isset($upload_errors[$error_code]) ? $upload_errors[$error_code] : 'Erreur inconnue (code: ' . $error_code . ')';
+                throw new Exception($error_msg);
             }
 
             $document = ProductInternalDocument::uploadDocument(
