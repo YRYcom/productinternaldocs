@@ -9,12 +9,8 @@ class AdminProductInternalDocsController extends ModuleAdminController
 {
     public function __construct()
     {
+        $this->bootstrap = true;
         parent::__construct();
-
-        // Vérifier que l'employé est connecté
-        if (!$this->context->employee || !$this->context->employee->id) {
-            Tools::redirect('index.php?controller=AdminLogin');
-        }
     }
 
     public function processDownload()
@@ -70,6 +66,7 @@ class AdminProductInternalDocsController extends ModuleAdminController
     public function processUpload()
     {
         $id_product = (int)Tools::getValue('id_product');
+        $title = Tools::getValue('title');
 
         if (!$id_product) {
             $this->ajaxDie(json_encode(['success' => false, 'error' => 'Produit invalide']));
@@ -83,7 +80,8 @@ class AdminProductInternalDocsController extends ModuleAdminController
             $document = ProductInternalDocument::uploadDocument(
                 $id_product,
                 $_FILES['document'],
-                $this->context->employee->id
+                $this->context->employee->id,
+                $title
             );
 
             $this->logAction('upload', $document->id_document, $this->context->employee->id);
